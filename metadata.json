@@ -1,0 +1,6 @@
+{
+  "name": "Fotosentez: Kloroplastın İçine Yolculuk",
+  "description": "Lise biyoloji dersi için fotosentez reaksiyonlarının temel adımlarını açıklayan etkileşimli, bilimsel eğitim modeli ve simülasyonu.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
