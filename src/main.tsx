@@ -1,40 +1,15 @@
 import React,{useEffect,useRef,useState}from"react";
 import{createRoot}from"react-dom/client";
 import"./index.css";
-
-const stages=[
-["Ödev yükleniyor...","Dosyalar kontrol ediliyor...","İçerik hazırlanıyor..."],
-["Bir dakika.","Bu sayfayı gerçekten açtınız.","İlginç."],
-["Saat 18:07.","Buraya geleceğinizi biliyordum.","Önceki ödevi hatırlıyor musunuz?"],
-["Onu size özellikle gösterdim.","Çünkü bakacağınızı biliyordum.","Şimdi biraz daha dikkatli bakın."],
-["Ekran değişiyor.","Tarayıcı ayarları kontrol ediliyor...","Bağlantı yeniden kuruluyor..."],
-["Bunu kapatmaya çalışmayın.","Henüz bitmedi.","Asıl kısmı şimdi başlıyor."],
-["TUZAĞIMA DÜŞTÜNÜZ.","Bunu açan kişi hâlâ burada mı?","Ben yeneceğim."],
-];
-
-function tone(ctx,f,d,gain=0.035,type="sine"){
- const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(gain,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+d);o.connect(g).connect(ctx.destination);o.start();o.stop(ctx.currentTime+d);
-}
-function startSound(){
- const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;
- const c=new C(); const master=c.createGain();master.gain.value=.055;master.connect(c.destination);
- const osc=c.createOscillator();const g=c.createGain();osc.type="sine";osc.frequency.value=48;g.gain.value=.22;osc.connect(g).connect(master);osc.start();
- let beat=0;const timer=window.setInterval(()=>{beat++;tone(c,62,0.16,.08,"sine");if(beat%2===0)tone(c,110,0.4,.025,"triangle");if(beat>35)clearInterval(timer)},850);
- return()=>{clearInterval(timer);osc.stop();c.close()};
-}
-function App(){
- const[started,setStarted]=useState(false),[stage,setStage]=useState(0),[line,setLine]=useState(0),[desktop,setDesktop]=useState(false),[flash,setFlash]=useState(false);
- const stopSound=useRef(null);
- useEffect(()=>{if(!started)return;document.title=stage>=5?"DİKKAT — ÖNEMLİ":stage>=2?"Bir şey fark ettiniz mi?":"Fotosentez | İnteraktif Ödev";
-   if(stage<stages.length){const t=setTimeout(()=>setLine(x=>x+1),stage===0?550:850);return()=>clearTimeout(t)}
- },[started,stage]);
- useEffect(()=>{if(line>=stages[stage]?.length&&stage<stages.length-1){const t=setTimeout(()=>{setStage(s=>s+1);setLine(0)},stage>=4?1200:500);return()=>clearTimeout(t)}},[line,stage]);
- const begin=async()=>{setStarted(true);stopSound.current=startSound();try{await document.documentElement.requestFullscreen?.()}catch{}};
- useEffect(()=>{if(stage===4){setDesktop(true);setFlash(true);setTimeout(()=>setFlash(false),180)}},[stage]);
- if(!started)return <main className="normal"><div className="paper"><div className="brand">BİYOLOJİ ÖDEVİ</div><h1>Fotosentez</h1><p>İnteraktif konu anlatımı ve deney simülasyonu</p><button onClick={begin}>Ödevi Aç</button><small>Sayfa tam ekran çalışmak için kullanıcı etkileşimi bekliyor.</small></div></main>;
- return <main className={`scene s${stage} ${flash?"flash":""}`}>
-   {desktop&&<div className="desktop"><div className="window"><div className="wbar">Görev Merkezi <span>— □ ×</span></div><div className="wbody"><b>Arka planda çalışan işlemler</b><div className="row">ÖDEV_2026 <i>%{Math.min(100,stage*23+17)}</i></div><div className="row">İçerik doğrulama <i>çalışıyor...</i></div><div className="row">Tarayıcı oturumu <i>aktif</i></div></div></div><div className="taskbar">⊞　Arama　　Ödev　　Tarayıcı　　18:07</div></div>}
-   <div className="vignette"/><section className="content"><div className="status">● bağlantı aktif　 /　 oturum: bilinmeyen</div>{stages[stage].slice(0,line).map((x,i)=><p key={i} className={x==="TUZAĞIMA DÜŞTÜNÜZ."?"trap":""}>{x}</p>)}{stage===stages.length-1&&line>=3&&<div className="final"><div>HANGİNİZ AÇTIYSA</div><div>BANA MESAJ ATSIN.</div><hr/><small>Gönderen: <b>Hilmi Selim Şen</b></small></div>}</section>
- </main>
-}
+type Event={text:string;delay:number;kind?:string};
+const events:Event[]=[
+{text:"Ödev yükleniyor...",delay:2600},{text:"Dosyalar kontrol ediliyor...",delay:2200},{text:"İçerik hazırlanıyor...",delay:2200},{text:"Fotosentez modülü başlatılıyor...",delay:2600},{text:"Hazır.",delay:1800},{text:"Bir dakika.",delay:1800},{text:"Bu sayfayı gerçekten açtınız.",delay:2400},{text:"İlginç.",delay:1800},{text:"Saat 18:07.",delay:2100},{text:"Buraya geleceğinizi biliyordum.",delay:2700},{text:"Önceki ödevi hatırlıyor musunuz?",delay:2500},{text:"Onu size özellikle gösterdim.",delay:2400},{text:"Çünkü bakacağınızı biliyordum.",delay:2800},{text:"Şimdi biraz daha dikkatli bakın.",delay:2500},{text:"Bir şey değişti.",delay:1700,kind:"system"},{text:"Tarayıcı oturumu yeniden doğrulanıyor...",delay:2400,kind:"system"},{text:"Açık sekmeler taranıyor...",delay:2600,kind:"system"},{text:"Bu sekme bulundu.",delay:2300,kind:"warning"},{text:"Ve evet...",delay:2200},{text:"Hâlâ buradasınız.",delay:2600},{text:"Kapatabilirsiniz.",delay:1900},{text:"Ama artık merak ettiniz.",delay:2500},{text:"Tam da bunu bekliyordum.",delay:2800},{text:"3",delay:1300,kind:"count"},{text:"2",delay:1300,kind:"count"},{text:"1",delay:1600,kind:"count"},{text:"BAĞLANTI KESİLDİ",delay:2600,kind:"alarm"},{text:"...",delay:1800},{text:"Şaka yapmıyorum.",delay:2300},{text:"Bu sayfayı açan kişi...",delay:2500},{text:"...bunu görmeyi seçti.",delay:2500},{text:"TUZAĞIMA DÜŞTÜNÜZ.",delay:3300,kind:"trap"},{text:"Ve şimdi son bir şey.",delay:2600},{text:"HANGİNİZ AÇTIYSA",delay:1700,kind:"final"},{text:"BANA MESAJ ATSIN.",delay:2200,kind:"final"},{text:"Gönderen: Hilmi Selim Şen",delay:0,kind:"signature"}];
+function sound(){const C=window.AudioContext||window.webkitAudioContext;if(!C)return()=>{};const c=new C(),m=c.createGain();m.gain.value=.045;m.connect(c.destination);const d=c.createOscillator(),g=c.createGain();d.type="sine";d.frequency.value=49;g.gain.value=.18;d.connect(g).connect(m);d.start();let n=0;const t=setInterval(()=>{n++;const o=c.createOscillator(),x=c.createGain();o.type=n%4===0?"triangle":"sine";o.frequency.value=n%4===0?98:62;x.gain.value=.13;x.gain.exponentialRampToValueAtTime(.001,c.currentTime+.5);o.connect(x).connect(m);o.start();o.stop(c.currentTime+.5)},1250);return()=>{clearInterval(t);d.stop();c.close()}};
+function App(){const[start,setStart]=useState(false),[idx,setIdx]=useState(0),[shown,setShown]=useState<string[]>([]),[progress,setProgress]=useState(0),[desktop,setDesktop]=useState(false),[glitch,setGlitch]=useState(false);const stop=useRef<(()=>void)|null>(null);
+useEffect(()=>{if(!start||idx>=events.length)return;const e=events[idx];setProgress(0);const tick=setInterval(()=>setProgress(p=>Math.min(100,p+1000/e.delay*100)),100);const timer=setTimeout(()=>{setShown(s=>[...s,e.text]);setIdx(i=>i+1)},e.delay);if(e.kind==="system"||e.kind==="warning")setDesktop(true);if(e.kind==="alarm"||e.kind==="trap"){setGlitch(true);setTimeout(()=>setGlitch(false),450)}return()=>{clearInterval(tick);clearTimeout(timer)}},[start,idx]);
+useEffect(()=>{if(start)document.title=idx>15?"DİKKAT":"Fotosentez | İnteraktif Ödev"},[start,idx]);
+const begin=async()=>{setStart(true);stop.current=sound();try{await document.documentElement.requestFullscreen?.()}catch{}};
+if(!start)return <main className="intro"><div className="sheet"><div className="tag">BİYOLOJİ • İNTERAKTİF ÖDEV</div><h1>Fotosentez</h1><p>Fotosentezin gerçekleşme sürecini incelemek için aşağıdaki bölümü açın.</p><button onClick={begin}>Ödevi Aç</button><span>İnteraktif içerik yükleniyor...</span></div></main>;
+const current=events[Math.max(0,idx-1)];
+return <main className={`scene ${current?.kind||""} ${desktop?"desktopMode":""} ${glitch?"glitch":""}`}>{desktop&&<div className="fakeDesktop"><div className="fakeWindow"><div className="titlebar">Görev Yöneticisi <b>— □ ×</b></div><div className="inside"><strong>Arka plan işlemleri</strong><div>Ödev doğrulama <em>%{Math.min(100,Math.floor(idx/events.length*100))}</em></div><div>Tarayıcı oturumu <em>aktif</em></div><div>Güvenlik denetimi <em>inceleniyor</em></div></div></div><div className="barBottom">⊞　 Ödev　　Tarayıcı　　Görev Yöneticisi　　18:07</div></div>}<div className="noise"/><section className="story"><div className="tiny">PHOTOSYNTHESIS.EXE　•　SESSION ACTIVE</div>{shown.slice(-5).map((x,i)=><p key={shown.length-5+i} className={i===4?"latest":""}>{x}</p>)}{idx<events.length&&<div className="loading"><i style={{width:progress+"%"}}/></div>}{idx>=events.length&&<div className="note">HANGİNİZ AÇTIYSA BANA MESAJ ATSIN.<hr/><small>Gönderen: <b>Hilmi Selim Şen</b></small></div>}</section></main>}
 createRoot(document.getElementById("root")!).render(<App/>);
