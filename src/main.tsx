@@ -1,10 +1,5 @@
-import {StrictMode} from 'react';
-import {createRoot} from 'react-dom/client';
-import App from './App.tsx';
-import './index.css';
-
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+import React,{useEffect,useState}from"react";import{createRoot}from"react-dom/client";import"./index.css";
+const lines=["AHH... AHH...","NE KADAR DA KOLAY İNANDINIZ.","BEN SİZE BU ÖDEVİ GÖSTERİR MİYİM SANDINIZ?","SİZİN BAKTIĞINIZI GÖRMEDİĞİMİ Mİ DÜŞÜNDÜNÜZ?","SAAT 6 SULARINDA BAKMIŞSINIZ.","ONU BİLE GÖREBİLİYORUM.","ÖNCEKİ ÖDEVİ BEĞENDİYSENİZ...","O SADECE GÖSTERMELİKTİ.","ASIL ÖDEV İÇİN HAZIRDA KALIN. 😈"];
+function App(){const[i,setI]=useState(0);const[panic,setPanic]=useState(false);useEffect(()=>{if(i<lines.length){const t=setTimeout(()=>setI(i+1),700);return()=>clearTimeout(t)}},[i]);return <main className={panic?"panic":""}><div className="scan"/><section className="terminal"><div className="bar">● ● ● <b>ÖDEV_2026_FINAL.exe</b></div><div className="screen"><div className="red">⚠ ŞÜPHELİ İZLEYİCİ TESPİT EDİLDİ</div>{lines.slice(0,i).map((x,k)=><p key={k} className={k===0?"big":""}>{x}<i>▌</i></p>)}{i===lines.length&&!panic&&<button onClick={()=>setPanic(true)}>DEVAM ET</button>}{panic&&<Fake/>}</div></section></main>}
+function Fake(){const[n,setN]=useState(0);useEffect(()=>{const t=setInterval(()=>setN(x=>x+1),180);return()=>clearInterval(t)},[]);const m=["KERNEL_SIMULATION: 0xDEADBEEF","RAM: PANİK MODU","SİSTEM: BU BİR ŞAKA DEĞİL MİYDİ?","WINDOWS: BENİ NİYE KARIŞTIRIYORSUNUZ?","CRITICAL_ERROR: TAKIM TROLLED","DOSYA SİLME: SADECE ŞAKA 😎"];return <div className="fake"><h1>💀 SİSTEM ÇÖKÜYOR...</h1><div className="load"><span style={{width:Math.min(100,n*9)+"%"}}/></div>{m.slice(0,Math.min(m.length,Math.floor(n/2)+1)).map((x,j)=><div key={j}>{x}</div>)}{n>8&&<><p className="reveal">RAHAT OLUN. BİLGİSAYARINIZA HİÇBİR ŞEY OLMADI. 😂</p><button onClick={()=>location.reload()}>ŞAKAYDI — GERİ DÖN</button></>}</div>}
+createRoot(document.getElementById("root")!).render(<App/>);
