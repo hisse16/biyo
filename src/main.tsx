@@ -26,9 +26,9 @@ function App(){
  const[started,setStarted]=useState(false),[stage,setStage]=useState(0),[line,setLine]=useState(0),[desktop,setDesktop]=useState(false),[flash,setFlash]=useState(false);
  const stopSound=useRef(null);
  useEffect(()=>{if(!started)return;document.title=stage>=5?"DİKKAT — ÖNEMLİ":stage>=2?"Bir şey fark ettiniz mi?":"Fotosentez | İnteraktif Ödev";
-   if(stage<stages.length){const t=setTimeout(()=>setLine(x=>x+1),stage===0?850:1250);return()=>clearTimeout(t)}
+   if(stage<stages.length){const t=setTimeout(()=>setLine(x=>x+1),stage===0?550:850);return()=>clearTimeout(t)}
  },[started,stage]);
- useEffect(()=>{if(line>=stages[stage]?.length&&stage<stages.length-1){const t=setTimeout(()=>{setStage(s=>s+1);setLine(0)},stage>=4?1800:900);return()=>clearTimeout(t)}},[line,stage]);
+ useEffect(()=>{if(line>=stages[stage]?.length&&stage<stages.length-1){const t=setTimeout(()=>{setStage(s=>s+1);setLine(0)},stage>=4?1200:500);return()=>clearTimeout(t)}},[line,stage]);
  const begin=async()=>{setStarted(true);stopSound.current=startSound();try{await document.documentElement.requestFullscreen?.()}catch{}};
  useEffect(()=>{if(stage===4){setDesktop(true);setFlash(true);setTimeout(()=>setFlash(false),180)}},[stage]);
  if(!started)return <main className="normal"><div className="paper"><div className="brand">BİYOLOJİ ÖDEVİ</div><h1>Fotosentez</h1><p>İnteraktif konu anlatımı ve deney simülasyonu</p><button onClick={begin}>Ödevi Aç</button><small>Sayfa tam ekran çalışmak için kullanıcı etkileşimi bekliyor.</small></div></main>;
